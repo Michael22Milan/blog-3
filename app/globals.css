@@ -16,6 +16,61 @@ body {
   min-height: 100vh;
 }
 
+/* 文章内容样式 */
+.article-content {
+  @apply prose prose-lg max-w-none;
+  font-size: 1.125rem;
+}
+
+.article-content p {
+  text-align: justify;
+  text-indent: 2em;
+  margin-bottom: 1.5em;
+  line-height: 2;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  text-indent: 0;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-weight: 600;
+}
+
+.article-content h1 {
+  font-size: 2em;
+}
+
+.article-content h2 {
+  font-size: 1.5em;
+}
+
+.article-content ul,
+.article-content ol {
+  text-indent: 0;
+  padding-left: 2em;
+  margin-bottom: 1.5em;
+}
+
+.article-content li {
+  text-indent: 0;
+  margin-bottom: 0.5em;
+  line-height: 1.8;
+}
+
+.article-content blockquote {
+  text-indent: 0;
+  margin: 2em 0;
+  padding: 1em 2em;
+  border-left: 4px solid #e0e0e0;
+  background-color: #f8f8f8;
+  font-style: italic;
+}
+
 .header-link {
   @apply text-lg hover:text-gray-600 transition-colors;
 }

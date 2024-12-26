@@ -2,6 +2,10 @@ import { getPostBySlug } from '@/lib/posts';
 import Link from 'next/link';
 import { marked } from 'marked';
 
+// 禁用页面缓存
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const post = await getPostBySlug(params.slug);
 
@@ -19,7 +23,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const htmlContent = marked(post.content);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       <Link 
         href="/" 
         className="text-gray-600 hover:text-gray-900 mb-8 inline-block"
@@ -27,19 +31,21 @@ export default async function PostPage({ params }: { params: { slug: string } })
         ← 返回首页
       </Link>
       
-      <article className="prose prose-lg max-w-none">
-        <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-        <div className="text-gray-600 mb-8">
-          {new Date(post.date).toLocaleDateString('zh-CN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
+      <article className="bg-white rounded-lg shadow-md p-8 md:p-16">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+          <div className="text-gray-600 mb-8">
+            {new Date(post.date).toLocaleDateString('zh-CN', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </div>
+          <div 
+            className="article-content"
+            dangerouslySetInnerHTML={{ __html: htmlContent }} 
+          />
         </div>
-        <div 
-          dangerouslySetInnerHTML={{ __html: htmlContent }} 
-          className="mt-8"
-        />
       </article>
     </div>
   );
