@@ -2,9 +2,19 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { Post } from '@/types/post';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
+
+// 定义返回类型接口
+interface PostData {
+  id: string;
+  slug: string;
+  content: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  coverImage: string;
+}
 
 export async function GET(
   _request: Request,
@@ -23,7 +33,7 @@ export async function GET(
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const matterResult = matter(fileContents);
 
-    const post: Post = {
+    const post: PostData = {
       id: params.slug,
       slug: params.slug,
       content: matterResult.content,

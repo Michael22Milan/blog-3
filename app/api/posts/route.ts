@@ -2,9 +2,19 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import type { Post } from '@/types/post';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
+
+// 定义返回类型接口
+interface PostData {
+  id: string;
+  slug: string;
+  content: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  coverImage: string;
+}
 
 // 禁用响应缓存
 export const dynamic = 'force-dynamic';
@@ -26,7 +36,7 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const allPostsData = fileNames
+    const allPostsData: PostData[] = fileNames
       .filter(fileName => fileName.endsWith('.md'))
       .map((fileName) => {
         const id = fileName.replace(/\.md$/, '');
