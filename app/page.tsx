@@ -26,7 +26,7 @@ export default async function Home() {
       {/* 分割线和标语 */}
       <div className="divider" />
       <div className="slogan-container">
-        <p className="slogan-primary">Don't Panic</p>
+        <p className="slogan-primary">Don&apos;t Panic</p>
         <p className="slogan-secondary">May the force be with you</p>
       </div>
       <div className="divider" />

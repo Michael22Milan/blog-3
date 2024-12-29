@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { Post } from '@/types/post';
+import type { Post } from '@/types/post';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
@@ -58,8 +58,8 @@ export async function GET() {
     response.headers.set('Expires', '0');
 
     return response;
-  } catch (error) {
-    console.error('Error in GET /api/posts:', error);
+  } catch (err) {
+    console.error('Error in GET /api/posts:', err);
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
   }
 }
@@ -96,8 +96,8 @@ ${content}`;
     response.headers.set('Expires', '0');
 
     return response;
-  } catch (error) {
-    console.error('Error in POST /api/posts:', error);
+  } catch (err) {
+    console.error('Error in POST /api/posts:', err);
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
   }
 } 

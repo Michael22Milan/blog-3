@@ -7,7 +7,7 @@ import { Post } from '@/types/post';
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: { slug: string } }
 ) {
   try {
@@ -15,6 +15,7 @@ export async function GET(
     
     // 检查文件是否存在
     if (!fs.existsSync(fullPath)) {
+      console.error(`Post not found: ${params.slug}`);
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
@@ -36,7 +37,8 @@ export async function GET(
     response.headers.set('Expires', '0');
 
     return response;
-  } catch (error) {
+  } catch (err) {
+    console.error(`Error fetching post ${params.slug}:`, err);
     return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
   }
 } 
