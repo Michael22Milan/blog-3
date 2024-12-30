@@ -5,54 +5,61 @@ import matter from 'gray-matter';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
-// 获取完整的API URL
-function getBaseUrl() {
-  if (typeof window !== 'undefined') {
-    return ''; // 在客户端使用相对路径
-  }
-  // 在服务器端使用完整URL
-  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-}
-
 export async function getAllPosts(): Promise<Post[]> {
   try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/posts`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch posts: ${response.statusText}`);
+    // 确保目录存在
+    if (!fs.existsSync(postsDirectory)) {
+      fs.mkdirSync(postsDirectory, { recursive: true });
+      return [];
     }
-    
-    return response.json();
+
+    const fileNames = fs.readdirSync(postsDirectory);
+    const posts = fileNames
+      .filter(fileName => fileName.endsWith('.md'))
+      .map(fileName => {
+        const fullPath = path.join(postsDirectory, fileName);
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        const { data, content } = matter(fileContents);
+        const slug = fileName.replace(/\.md$/, '');
+        
+        return {
+          id: slug,
+          slug,
+          title: data.title,
+          date: data.date,
+          content: content,
+          excerpt: data.excerpt || '',
+          coverImage: data.coverImage || ''
+        };
+      })
+      .sort((a, b) => (a.date > b.date ? -1 : 1));
+
+    return posts;
   } catch (error) {
     console.error('Error fetching posts:', error);
-    throw error;
+    return [];
   }
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
-    const baseUrl = getBaseUrl();
-    const response = await fetch(`${baseUrl}/api/posts/${slug}`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
-
-    if (!response.ok) {
-      console.error(`Failed to fetch post ${slug}:`, response.statusText);
+    const fullPath = path.join(postsDirectory, `${slug}.md`);
+    if (!fs.existsSync(fullPath)) {
       return null;
     }
 
-    return response.json();
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
+    const { data, content } = matter(fileContents);
+
+    return {
+      id: slug,
+      slug,
+      title: data.title,
+      date: data.date,
+      content: content,
+      excerpt: data.excerpt || '',
+      coverImage: data.coverImage || ''
+    };
   } catch (error) {
     console.error(`Error fetching post ${slug}:`, error);
     return null;
@@ -60,22 +67,28 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export async function createPost(post: Omit<Post, 'id' | 'slug'>): Promise<{ id: string; slug: string }> {
-  const baseUrl = getBaseUrl();
-  const response = await fetch(`${baseUrl}/api/posts`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    },
-    body: JSON.stringify(post),
-  });
+  try {
+    const date = new Date();
+    const slug = date.toISOString().split('T')[0] + '-' + post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const id = slug;
 
-  if (!response.ok) {
-    throw new Error('Failed to create post');
+    const content = `---
+title: ${post.title}
+date: ${post.date || date.toISOString()}
+excerpt: ${post.excerpt || ''}
+coverImage: ${post.coverImage || ''}
+---
+
+${post.content}`;
+
+    const fullPath = path.join(postsDirectory, `${slug}.md`);
+    fs.writeFileSync(fullPath, content);
+
+    return { id, slug };
+  } catch (error) {
+    console.error('Error creating post:', error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function updatePost(id: string, post: Partial<Post>): Promise<Post | null> {
